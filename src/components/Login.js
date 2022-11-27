@@ -19,7 +19,7 @@ export default function Login() {
     const url = window.location.href;
     const hasCode = url.includes("?code=");
   console.log("Method1");
-    // If Github API returns the code parameter
+    // If Github API returns the code parameter in
     if (hasCode) {
       const newUrl = url.split("?code=");
       window.history.pushState({}, null, newUrl[0]);
