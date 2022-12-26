@@ -3,93 +3,44 @@ import { Redirect } from "react-router-dom";
 import Styled from "styled-components";
 import GithubIcon from "mdi-react/GithubIcon";
 import { AuthContext } from "../App";
-import fetch from 'node-fetch';
 
-
-// const FormData = require("form-data");
 
 export default function Login() {
   const { state, dispatch } = useContext(AuthContext);
   const [data, setData] = useState({ errorMessage: "", isLoading: false });
 
-  const { client_id, redirect_uri, client_secret } = state;
+  const { client_id, redirect_uri } = state;
 
   useEffect(() => {
     // After requesting Github access, Github redirects back to your app with a code parameter
     const url = window.location.href;
     const hasCode = url.includes("?code=");
-  console.log("Method1");
-    // If Github API returns the code parameter in
+
+    // If Github API returns the code parameter
     if (hasCode) {
       const newUrl = url.split("?code=");
       window.history.pushState({}, null, newUrl[0]);
       setData({ ...data, isLoading: true });
-      console.log("Method2");
 
       const requestData = {
         code: newUrl[1]
       };
 
-      // const proxy_url = state.proxy_url;
+      const proxy_url = state.proxy_url;
 
-      // const token_data = new FormData();
-      // token_data.append("client_id", client_id);
-      // token_data.append("client_secret", client_secret);
-      // token_data.append("code", requestData.code);
-      // token_data.append("redirect_uri", redirect_uri);
-
-
-     
-      const URL = "https://github.com/login/oauth/access_token";
       // Use code parameter and other parameters to make POST request to proxy_server
-      const token_data = new FormData();
-      token_data.append("client_id", client_id);
-      token_data.append("client_secret", client_secret);
-      token_data.append("code", requestData.code);
-      token_data.append("redirect_uri", redirect_uri);
-      console.log("Method3",token_data);
-      fetch(URL, {
+      fetch(proxy_url, {
         method: "POST",
-        headers:{'Access-Control-Allow-Origin':'*','Accept': 'application/json',
-        'Content-Type':'application/json'
-      },
-        mode: 'no-cors',
-        body: token_data,
+        body: JSON.stringify(requestData)
       })
-        .then((response) => {
-          console.log('response',response.text());
-          
-          response.text()})
-        .then((response) => {
-          console.log('paramsString',response);
-          let params = new URLSearchParams(response);
-          const access_token = params.get("access_token");
-          console.log('Access Token',access_token);
-          // Request to return data of a user that has been authenticated
-          return fetch(`https://api.github.com/user`, {
-            headers: {
-              Authorization: `token ${access_token}`,
-            },
+        .then(response => response.json())
+        .then(data => {
+          dispatch({
+            type: "LOGIN",
+            payload: { user: data, isLoggedIn: true }
           });
         })
-        
-        // .then((response) => response.json())
-        // .then((response) => {
-        //   return res.status(200).json(response);
-        // })
-        // .catch((error) => {
-        //   return res.status(400).json(error);
-        // });
-        // .then(response => response.json())
-        // .then(data => {
-        //   dispatch({
-        //     type: "LOGIN",
-        //     payload: { user: data, isLoggedIn: true }
-        //   });
-        // })
-
         .catch(error => {
-          console.log('Error',error);
           setData({
             isLoading: false,
             errorMessage: "Sorry! Login failed"
@@ -107,7 +58,7 @@ export default function Login() {
       <section className="container">
         <div>
           <h1>Welcome</h1>
-          <span>Super amazing app</span>
+          <span>OAuth Demo app</span>
           <span>{data.errorMessage}</span>
           <div className="login-container">
             {data.isLoading ? (
