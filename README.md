@@ -16,3 +16,19 @@ REACT_APP_PROXY_URL=http://localhost:5000/authenticate
 SERVER_PORT=5000
 ```
 
+### Setup
+
+First install the required packages by below command. Make sure to have a node version of 14.17.0 or above.
+ ```
+ npm install
+ ```
+
+Then execute the below command in the root folder to start the frontend application
+```
+npm start
+```
+
+Execute the below command inside the server folder.
+```
+node index.js
+```
